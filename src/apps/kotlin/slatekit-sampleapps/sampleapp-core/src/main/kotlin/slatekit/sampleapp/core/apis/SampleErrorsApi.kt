@@ -14,10 +14,6 @@ import slatekit.common.validations.ValidationFuncs
 
 open class SampleErrorsApi(enableErrorHandling:Boolean) : ApiWithMiddleware {
 
-    override val isErrorEnabled :Boolean = enableErrorHandling
-    override val isHookEnabled  :Boolean = false
-    override val isFilterEnabled:Boolean = false
-
 
     /**
      * Error-handling using the Result<T> object to model
@@ -51,7 +47,7 @@ open class SampleErrorsApi(enableErrorHandling:Boolean) : ApiWithMiddleware {
     }
 
 
-    override fun onException(context: Context, request: Request, source:Any, ex: Exception): Result<Any> {
+    override fun onError(ctx: Context, req: Request, target:Any, source: Any, ex: Exception?, args: Map<String, Any>?): Result<Any> {
         return ResultFuncs.failureWithCode(UNEXPECTED_ERROR, msg = "unexpected error in api", err = ex)
     }
 

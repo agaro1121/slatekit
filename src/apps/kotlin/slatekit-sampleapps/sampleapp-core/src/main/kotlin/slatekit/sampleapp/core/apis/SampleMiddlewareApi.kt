@@ -1,6 +1,6 @@
 package slatekit.sampleapp.core.apis
 
-import slatekit.apis.ApiRegAction
+import slatekit.apis.core.Action
 import slatekit.apis.support.ApiWithMiddleware
 import slatekit.common.Context
 import slatekit.common.Request
@@ -10,13 +10,7 @@ import slatekit.common.results.ResultFuncs.badRequest
 import slatekit.sampleapp.core.models.User
 
 
-open class SampleMiddlewareApi(
-        enableHooks:Boolean = false,
-        enableFilter :Boolean = false) : ApiWithMiddleware {
-
-    override val isErrorEnabled :Boolean = true
-    override val isHookEnabled = enableHooks
-    override val isFilterEnabled = enableFilter
+open class SampleMiddlewareApi() : ApiWithMiddleware {
 
 
     // Used for demo/testing purposes
@@ -26,26 +20,40 @@ open class SampleMiddlewareApi(
 
 
     /**
-     * Hook for before this api handles any request
+     * hook for before the api call is made
+     * @param ctx   : The application context
+     * @param req   : The request
+     * @param target: The target of the request
+     * @param source: The originating source for this hook ( e.g. ApiContainer )
+     * @param args  : Additional arguments supplied by the source
      */
-    override fun onBefore(context:Context, request:Request, source:Any, target: ApiRegAction): Unit {
-        onBeforeHookCount.add(request)
+    override fun onBefore(ctx: Context, req: Request, target: Action, source: Any, args: Map<String, Any>?): Unit {
+        onBeforeHookCount.add(req)
     }
 
 
     /**
-     * Hook for after this api handles any request
+     * hook for after the api call is made
+     * @param ctx   : The application context
+     * @param req   : The request
+     * @param target: The target of the request
+     * @param source: The originating source for this hook ( e.g. ApiContainer )
+     * @param args  : Additional arguments supplied by the source
      */
-    override fun onAfter(context:Context, request:Request, source:Any, target:ApiRegAction): Unit {
-        onAfterHookCount.add(request)
+    override fun onAfter(ctx: Context, req: Request, target: Action, source: Any, args: Map<String, Any>?): Unit {
+        onAfterHookCount.add(req)
     }
 
 
     /**
-     * Hook to first filter a request before it is handled by this api.
+     * Filters the calls and returns a true/false indicating whether or not to proceed
+     * @param ctx   : The application context
+     * @param req   : The source to determine if it can be filtered
+     * @param source: The originating source for this hook ( e.g. ApiContainer )
+     * @param args  : Additional arguments supplied by the source
      */
-    override fun onFilter(context: Context, request:Request, source:Any, target:ApiRegAction): Result<Any>  {
-        return if(request.action.startsWith("hi")) {
+    override fun onFilter(ctx: Context, req: Request, source: Any, args: Map<String, Any>?): Result<Any> {
+        return if(req.action.startsWith("hi")) {
             badRequest<Boolean>("filtered out")
         } else {
             ResultFuncs.ok()
